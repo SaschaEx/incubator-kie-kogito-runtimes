@@ -40,6 +40,8 @@ public class DataIndexEventPublisher implements EventPublisher {
     private static final Logger LOGGER = LoggerFactory.getLogger(DataIndexEventPublisher.class);
     private static final String CLOUD_EVENTS_CONTENT_TYPE = "application/cloudevents+json";
     private static final String CONTENT_TYPE = "content-type";
+    private static final String HTTP = "http://";
+    private static final String HTTPS = "https://";
 
     @ConfigProperty(name = KOGITO_DATA_INDEX)
     Optional<String> dataIndexUrl;
@@ -54,6 +56,13 @@ public class DataIndexEventPublisher implements EventPublisher {
         webClient = WebClient.create(vertx);
     }
 
+    private String sanitizeUrl(String url) {
+        if (!url.startsWith(HTTP) && !url.startsWith(HTTPS)) {
+            url = HTTP + url;
+        }
+        return url;
+    }
+
     @Override
     public void publish(DataEvent<?> event) {
         if (dataIndexUrl.isEmpty()) {
@@ -63,7 +72,7 @@ public class DataIndexEventPublisher implements EventPublisher {
         LOGGER.debug("Sending event to data index: {}", event);
         switch (event.getType()) {
             case "ProcessDefinitionEvent":
-                webClient.postAbs(dataIndexUrl.get() + "/definitions")
+                webClient.postAbs(sanitizeUrl(dataIndexUrl.get()) + "/definitions")
                         .putHeader(CONTENT_TYPE, CLOUD_EVENTS_CONTENT_TYPE)
                         .expect(ResponsePredicate.SC_ACCEPTED)
                         .sendJson(event, result -> {
@@ -79,7 +88,7 @@ public class DataIndexEventPublisher implements EventPublisher {
             case "ProcessInstanceSLADataEvent":
             case "ProcessInstanceStateDataEvent":
             case "ProcessInstanceVariableDataEvent":
-                webClient.postAbs(dataIndexUrl.get() + "/processes")
+                webClient.postAbs(sanitizeUrl(dataIndexUrl.get()) + "/processes")
                         .putHeader(CONTENT_TYPE, CLOUD_EVENTS_CONTENT_TYPE)
                         .expect(ResponsePredicate.SC_ACCEPTED)
                         .sendJson(event, result -> {
@@ -96,7 +105,7 @@ public class DataIndexEventPublisher implements EventPublisher {
             case "UserTaskInstanceDeadlineDataEvent":
             case "UserTaskInstanceStateDataEvent":
             case "UserTaskInstanceVariableDataEvent":
-                webClient.postAbs(dataIndexUrl.get() + "/tasks")
+                webClient.postAbs(sanitizeUrl(dataIndexUrl.get()) + "/tasks")
                         .putHeader(CONTENT_TYPE, CLOUD_EVENTS_CONTENT_TYPE)
                         .expect(ResponsePredicate.SC_ACCEPTED)
                         .sendJson(event, result -> {

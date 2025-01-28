@@ -31,6 +31,7 @@
 
   <artifactId>kogito-quarkus-workflow-common</artifactId>
   <name>Kogito :: Quarkus Workflow Extension Common :: Runtime</name>
+  <version>999-SNAPSHOT</version>
 
   <properties>
     <java.module.name>org.kie.kogito.quarkus.workflow</java.module.name>
@@ -56,6 +57,11 @@
     <dependency>
       <groupId>org.kie.kogito</groupId>
       <artifactId>jbpm-flow-migration</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.kie.kogito</groupId>
+      <artifactId>kogito-services</artifactId>
+      <version>10.0.0</version>
     </dependency>
   </dependencies>
 
